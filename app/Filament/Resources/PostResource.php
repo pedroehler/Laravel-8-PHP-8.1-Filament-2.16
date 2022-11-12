@@ -4,19 +4,22 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PostResource\Pages;
 use App\Filament\Resources\PostResource\RelationManagers;
-use App\Filament\Roles;
-use Filament\Resources\Forms\Components;
-use Filament\Resources\Forms\Form;
+use App\Models\Post;
+use Filament\Forms;
+use Filament\Resources\Form;
 use Filament\Resources\Resource;
-use Filament\Resources\Tables\Columns;
-use Filament\Resources\Tables\Filter;
-use Filament\Resources\Tables\Table;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PostResource extends Resource
 {
-    public static $icon = 'heroicon-o-collection';
+    protected static ?string $model = Post::class;
 
-    public static function form(Form $form)
+    protected static ?string $navigationIcon = 'heroicon-o-collection';
+
+    public static function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -24,7 +27,7 @@ class PostResource extends Resource
             ]);
     }
 
-    public static function table(Table $table)
+    public static function table(Table $table): Table
     {
         return $table
             ->columns([
@@ -32,22 +35,28 @@ class PostResource extends Resource
             ])
             ->filters([
                 //
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-
-    public static function relations()
+    
+    public static function getRelations(): array
     {
         return [
             //
         ];
     }
-
-    public static function routes()
+    
+    public static function getPages(): array
     {
         return [
-            Pages\ListPosts::routeTo('/', 'index'),
-            Pages\CreatePost::routeTo('/create', 'create'),
-            Pages\EditPost::routeTo('/{record}/edit', 'edit'),
+            'index' => Pages\ListPosts::route('/'),
+            'create' => Pages\CreatePost::route('/create'),
+            'edit' => Pages\EditPost::route('/{record}/edit'),
         ];
-    }
+    }    
 }

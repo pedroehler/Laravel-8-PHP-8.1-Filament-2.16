@@ -2,37 +2,36 @@
 
 namespace App\Filament\Resources;
 
-use Closure;
-use App\Filament\Roles;
-use Illuminate\Support\Str;
-use Filament\Resources\Resource;
-use Filament\Resources\Forms\Form;
-use Filament\Resources\Tables\Table;
-use Filament\Resources\Tables\Filter;
-use Filament\Resources\Tables\Columns;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Forms\Components;
 use App\Filament\Resources\CategoryResource\Pages;
 use App\Filament\Resources\CategoryResource\RelationManagers;
+use App\Models\Category;
+use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CategoryResource extends Resource
 {
-    public static $icon = 'heroicon-o-collection';
+    protected static ?string $model = Category::class;
 
-    public static function form(Form $form)
+    protected static ?string $navigationIcon = 'heroicon-o-collection';
+
+    public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('name')->reactive()
-                    ->afterStateUpdated(function (Closure $set, $state) {
-                        $set('slug', Str::slug($state));
-                    })->required(),
-                TextInput::make('slug')->required(),
-                
+                TextInput::make('name')
+                    ->required()
+                    ->autofocus()
+                    ->placeholder('Enter a name...'),
             ]);
     }
 
-    public static function table(Table $table)
+    public static function table(Table $table): Table
     {
         return $table
             ->columns([
@@ -40,22 +39,28 @@ class CategoryResource extends Resource
             ])
             ->filters([
                 //
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-
-    public static function relations()
+    
+    public static function getRelations(): array
     {
         return [
             //
         ];
     }
-
-    public static function routes()
+    
+    public static function getPages(): array
     {
         return [
-            Pages\ListCategories::routeTo('/', 'index'),
-            Pages\CreateCategory::routeTo('/create', 'create'),
-            Pages\EditCategory::routeTo('/{record}/edit', 'edit'),
+            'index' => Pages\ListCategories::route('/'),
+            'create' => Pages\CreateCategory::route('/create'),
+            'edit' => Pages\EditCategory::route('/{record}/edit'),
         ];
-    }
+    }    
 }
