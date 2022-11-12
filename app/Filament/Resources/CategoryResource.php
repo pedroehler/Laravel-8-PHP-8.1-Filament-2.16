@@ -2,15 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use Closure;
+use App\Filament\Roles;
+use Illuminate\Support\Str;
+use Filament\Resources\Resource;
+use Filament\Resources\Forms\Form;
+use Filament\Resources\Tables\Table;
+use Filament\Resources\Tables\Filter;
+use Filament\Resources\Tables\Columns;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Forms\Components;
 use App\Filament\Resources\CategoryResource\Pages;
 use App\Filament\Resources\CategoryResource\RelationManagers;
-use App\Filament\Roles;
-use Filament\Resources\Forms\Components;
-use Filament\Resources\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Tables\Columns;
-use Filament\Resources\Tables\Filter;
-use Filament\Resources\Tables\Table;
 
 class CategoryResource extends Resource
 {
@@ -20,7 +23,12 @@ class CategoryResource extends Resource
     {
         return $form
             ->schema([
-                //
+                TextInput::make('name')->reactive()
+                    ->afterStateUpdated(function (Closure $set, $state) {
+                        $set('slug', Str::slug($state));
+                    })->required(),
+                TextInput::make('slug')->required(),
+                
             ]);
     }
 
